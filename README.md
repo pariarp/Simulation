@@ -1,5 +1,6 @@
 # Simulation
 
+## Phase 1 : Squelette et Moteur de Base (Terminée)
 ### Étape 1 : Modélisation et définition de l'architecture du simulateur
 ##### 1. Les Entités (Les Stations)
 Nous avons N stations qui veulent émettre des paquets. Chaque station doit avoir :
@@ -20,3 +21,22 @@ C'est le moteur de ton simulateur. Il doit contenir les événements futurs, tri
 - **Arrivée d'un paquet** : Un nouveau paquet arrive à une station. (La durée entre deux arrivées suit une loi exponentielle de paramètre λ ).
 - **Début de transmission** : Une station tente d'envoyer un paquet sur le canal.
 - **Fin de transmission** : Se produit 1 unité de temps après le début. C'est à ce moment qu'on vérifie si le paquet est passé (succès) ou s'il y a eu un chevauchement (collision).
+
+### Étape 2 : Moteur à événements discrets
+- Initialisation du simulateur en programmant la première arrivée pour chaque station.
+- Boucle principale qui avance l'horloge à la date du prochain événement.
+
+### Étape 3 : Arrivée des paquets (traiter_arrivee)
+- Lorsqu'un paquet arrive, on génère le prochain délai d'arrivée via `random.expovariate(lambda)`.
+- Si la file est pleine (capacité K atteinte), le paquet est marqué comme "perdu".
+- Sinon, il entre dans la file. Si la station était inactive, elle tente de transmettre tout de suite.
+
+## Phase 2 : Cœur du Protocole MAC (À venir)
+(Nous détaillerons ces parties une fois codées)
+
+### Étape 4 : Début de Transmission (`traiter_debut_tx`)
+### Étape 5 : Fin de Transmission (Succès ou Collision) et Exponential Backoff
+
+## Phase 3 : Mesures et Statistiques (À venir)
+### Étape 6 : Collecte des métriques
+### Étape 7 : Génération des courbes et Analyse
