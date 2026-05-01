@@ -34,15 +34,64 @@ class Simulateur:
         # heapq permet de garder la liste triée par date automatiquement
         heapq.heappush(self.echeancier, (date, type_evt, id_station))
 
+    def initialisation(self):
+        # On programme la première arrivée de paquet pour CHAQUE station
+        for i in range(self.N):
+            # TIrage aléatoire selon une loi exponentielle
+            temps_premiere_arrivee = random.expovariate(self.lmbda)
+
+            # On insère l'événement dans l'écheancier
+            # Format : (date, type_evenement, id_station)
+            self.inserer_evenement(temps_premiere_arrivee, 'ARRIVEE', i)
+
     def executer(self, temps_max):
-        # C'est ici qu'on mettra la boucle principale du simulateur plus tard !
-        pass
+        self.initialisation() # On amorce la pompe
+
+        # Boucle principale : on tourne tant qu'il y a des événements ET qu'on a pas dépassé le temps max
+        while self.echeancier and self.horloge < temps_max:
+            # Onextrait l'événement le plus proche dans le temps
+            date_evt, type_evt, id_station = heapq.heappop(self.echeancier)
+
+            # On met à jour l'horloge
+            self.horloge = date_evt
+
+            # Plus tard, on appellera les bonnes fonctions selon le type d'événement
+            if type_evt == 'ARRIVEE':
+                print(f"[{self.horloge:.2f}] ARRIVEE d'un paquet à la station {id_station}")
+                self.traiter_arrivee(id_station)
+            elif type_evt == 'DEBUT_TX':
+                pass # self.traiter_debut_tx(id_station)
+            elif type_evt == 'FIN_TX':
+                pass # self.traiter_fin_tx(id_station)
+    
+    def traiter_arrivee(self, id_station):
+        station = self.stations[id_station]
+
+        # Programmer l'arrivée du PROCHAIN paquet pour cette station
+        prochain_delai = random.expovariate(self.lmbda)
+        self.inserer_evenement(self.horloge + prochain_delai, 'ARRIVEE', id_station)
+
+        # Gérer la file d'attente
+        if station.nb_paquets < self.K:
+            # Il y a de la place, on ajoute le paquet dans le file
+            station.nb_paquets += 1
+            print(f" -> Paquet accepté (File : {station.nb_paquets}/{self.K})")
+
+            # Tenter d'émettre si la station était inactive
+            if station.nb_paquets == 1 and not station.en_transmission:
+                print(f" -> station {id_station} tente d'émettre immédiatement.")
+                self.inserer_evenement(self.horloge, 'DEBUT_TX', id_station)
+        else:
+            # La file est pleine, le paquet est perdu
+            self.n_perdus += 1
+            print(f" -> Paquet PERDU (File pleine !)")
 
 # --- Zone de test ---
 if __name__ == "__main__":
     # On crée un simulateur avec des valeurs arbitraires pour tester
     sim = Simulateur(N=5, K=10, lmbda=0.1, tau=0.5)
     print(f"Simulateur initialisé avec {sim.N} stations.")
+    sim.executer(50)
 
 """
 Ce qu'il faut retenir de ce code :
