@@ -36,17 +36,18 @@ class Simulateur:
         # heapq permet de garder la liste triée par date automatiquement
         heapq.heappush(self.echeancier, (date, type_evt, id_station))
 
+    def initialisation(self):
+        # On programme la première arrivée de paquet pour CHAQUE station
+        for i in range(self.N):
+            # TIrage aléatoire selon une loi exponentielle
+            temps_premiere_arrivee = random.expovariate(self.lmbda)
+
+            # On insère l'événement dans l'écheancier
+            # Format : (date, type_evenement, id_station)
+            self.inserer_evenement(temps_premiere_arrivee, 'arrivee', i)
+
     def executer(self, temps_max):
-        """
-        Boucle principale du simulateur.
-        1. Initialise une première arrivée pour chaque station
-        2. Extrait et traite les événements dans l'ordre chronologique
-        3. S'arrête quand l'horloge dépasse temps_max
-        """
-        # Planifier la première arrivée pour chaque station
-        for station in self.stations:
-            date = random.expovariate(self.lmbda)
-            self.inserer_evenement(date, "arrivee", station.id)
+        self.initialisation() # On amorce la pompe
 
         # Boucle principale
         while self.echeancier:
@@ -73,27 +74,22 @@ class Simulateur:
                 self._traiter_fin_backoff(station)
     
     def _traiter_arrivee(self, station):
-        """
-        Un paquet arrive à la station.
-        - Planifie la prochaine arrivée (Exp(λ))
-        - Si file pleine → paquet perdu
-        - Sinon → ajout en file, et émission si station libre
-        """
-        # Planifier la prochaine arrivée sur cette station
-        prochaine = self.horloge + random.expovariate(self.lmbda)
-        self.inserer_evenement(prochaine, "arrivee", station.id)
+        # Programmer l'arrivée du PROCHAIN paquet pour cette station
+        prochain_delai = random.expovariate(self.lmbda)
+        self.inserer_evenement(self.horloge + prochain_delai, 'arrivee', station.id)
 
-        # Si la file est pleine → paquet perdu
-        if station.nb_paquets >= self.K:
+        # Gérer la file d'attente
+        if station.nb_paquets < self.K:
+            # Il y a de la place, on ajoute le paquet dans la file
+            station.nb_paquets += 1
+
+            # Tenter d'émettre si la station était inactive
+            if not station.en_transmission and not station.en_backoff:
+                self.inserer_evenement(self.horloge, 'debut_emission', station.id)
+        else:
+            # La file est pleine, le paquet est perdu
             self.n_perdus += 1
-            return
 
-        # Sinon on ajoute le paquet dans la file
-        station.nb_paquets += 1
-
-        # Si la station est libre, elle peut émettre tout de suite
-        if not station.en_transmission and not station.en_backoff:
-            self.inserer_evenement(self.horloge, "debut_emission", station.id)
     def _traiter_debut_emission(self, station):
         """
         La station commence à émettre.
@@ -162,6 +158,7 @@ if __name__ == "__main__":
     sim.executer(temps_max=1000)
 
     print(f"Simulateur initialisé avec {sim.N} stations.")
+
     print(f"Paquets transmis avec succès : {sim.n_succes}")
     print(f"Paquets perdus (file pleine)  : {sim.n_perdus}")
     print(f"Débit moyen n(t)/t            : {sim.n_succes / 1000:.4f}")
