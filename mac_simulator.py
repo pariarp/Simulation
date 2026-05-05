@@ -32,6 +32,12 @@ class Simulateur:
         self.n_perdus = 0       # Nombre de paquets rejetés (file pleine)
         self.somme_clients = 0  # Pour calculer le nombre moyen de clients
 
+        # Listes pour les courbes
+        self.temps = []          # Liste des temps pour les courbes
+        self.debits = []         # Liste des débits pour les courbes
+        self.clients_moyens = [] # Liste du nombre moyen de clients pour les courbes
+        self.taux_pertes = []    # Liste des taux de pertes pour les courbes
+
     def inserer_evenement(self, date, type_evt, id_station):
         # heapq permet de garder la liste triée par date automatiquement
         heapq.heappush(self.echeancier, (date, type_evt, id_station))
@@ -61,6 +67,8 @@ class Simulateur:
             self.somme_clients += total * (date - self.horloge) # Intégration du nombre de clients sur le temps, pour calculer la moyenne à la fin, aire sous la courbe 
             self.horloge = date # Avance l'horloge au moment de l'événement
 
+            self._enregistrer_stats() # Enregistre les statistiques pour les courbes à chaque événement
+
             station = self.stations[id_station]
 
             # Dispatcher vers la bonne fonction
@@ -72,6 +80,20 @@ class Simulateur:
                 self._traiter_fin_emission(station) # la station termine d'envoyer son paquet, on vérifie s'il y a eu collision ou pas
             elif type_evt == "fin_backoff":
                 self._traiter_fin_backoff(station) # le délai de backoff est terminé, on peut réessayer d'envoyer le paquet s'il en reste
+
+    def _enregistrer_stats(self):
+        if self.horloge == 0:
+            return  # Éviter la division par zéro
+        
+        self.temps.append(self.horloge)
+        self.debits.append(self.n_succes / self.horloge)
+        self.clients_moyens.append(self.somme_clients / self.horloge)
+
+        total_observe = self.n_succes + self.n_perdus
+        if total_observe > 0:
+            self.taux_pertes.append(self.n_perdus / total_observe)
+        else:
+            self.taux_pertes.append(0)
     
     # --- Fonctions de traitement des événements ---
     # Le préfixe _ indique qu’une méthode est interne à la classe et ne doit pas être utilisée en dehors du simulateur.
@@ -161,17 +183,15 @@ class Simulateur:
         if station.nb_paquets > 0:
             self.inserer_evenement(self.horloge, "debut_emission", station.id)
 
-# --- Zone de test ---
-if __name__ == "__main__":
-    sim = Simulateur(N=5, K=10, lmbda=0.3, tau=1.0)
-    sim.executer(temps_max=1000)
 
-    print(f"Simulateur initialisé avec {sim.N} stations.")
-
-    print(f"Paquets transmis avec succès : {sim.n_succes}")
-    print(f"Paquets perdus (file pleine)  : {sim.n_perdus}")
-    print(f"Débit moyen n(t)/t            : {sim.n_succes / 1000:.4f}")
-    print(f"Nombre moyen de clients       : {sim.somme_clients / 1000:.4f}")
+    def resultats_finaux(self, temps_max):
+        return {
+            "debit": self.n_succes / temps_max,
+            "clients_moyens": self.somme_clients / temps_max,
+            "taux_pertes": self.n_perdus / (self.n_succes + self.n_perdus) if self.n_succes + self.n_perdus > 0 else 0,
+            "succes": self.n_succes,
+            "perdus": self.n_perdus,
+        }
 
 """
 Ce qu'il faut retenir de ce code :
