@@ -58,22 +58,30 @@ class Simulateur:
 
             # Mise à jour de la somme pour le nombre moyen de clients
             total = sum(s.nb_paquets for s in self.stations)
-            self.somme_clients += total * (date - self.horloge)
-            self.horloge = date
+            self.somme_clients += total * (date - self.horloge) # Intégration du nombre de clients sur le temps, pour calculer la moyenne à la fin, aire sous la courbe 
+            self.horloge = date # Avance l'horloge au moment de l'événement
 
             station = self.stations[id_station]
 
             # Dispatcher vers la bonne fonction
             if type_evt == "arrivee":
-                self._traiter_arrivee(station)
+                self._traiter_arrivee(station) # Traite l'arrivée d'un paquet à la station
             elif type_evt == "debut_emission":
-                self._traiter_debut_emission(station)
+                self._traiter_debut_emission(station) #la station commence à envoyer son paquet
             elif type_evt == "fin_emission":
-                self._traiter_fin_emission(station)
+                self._traiter_fin_emission(station) # la station termine d'envoyer son paquet, on vérifie s'il y a eu collision ou pas
             elif type_evt == "fin_backoff":
-                self._traiter_fin_backoff(station)
+                self._traiter_fin_backoff(station) # le délai de backoff est terminé, on peut réessayer d'envoyer le paquet s'il en reste
     
+    # --- Fonctions de traitement des événements ---
+    # Le préfixe _ indique qu’une méthode est interne à la classe et ne doit pas être utilisée en dehors du simulateur.
     def _traiter_arrivee(self, station):
+        """
+        Traite l'arrivée d'un paquet à la station.
+         - Programme l'arrivée du prochain paquet pour cette station
+         - Si la file n'est pas pleine, ajoute le paquet et tente d'émettre
+         - Sinon, le paquet est perdu
+        """
         # Programmer l'arrivée du PROCHAIN paquet pour cette station
         prochain_delai = random.expovariate(self.lmbda)
         self.inserer_evenement(self.horloge + prochain_delai, 'arrivee', station.id)
@@ -94,6 +102,7 @@ class Simulateur:
         """
         La station commence à émettre.
         - Marque la station comme émettrice
+        - Ajoute la station à la liste des stations en transmission, pour détecter les collisions
         - Planifie la fin de l'émission dans 1 unité de temps
         """
         # La station commence à émettre
@@ -127,7 +136,7 @@ class Simulateur:
                 self.inserer_evenement(self.horloge, "debut_emission", station.id)
         else:
             # COLLISION
-            self.stations_en_collision.discard(station.id)
+            self.stations_en_collision.discard(station.id) # Retire la station de l'ensemble des stations en collision 
             
             # Marquer toutes les stations encore en train d'émettre comme en collision
             for sid in self.canal_occupe_par:
