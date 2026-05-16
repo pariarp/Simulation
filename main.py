@@ -1,3 +1,9 @@
+"""
+Point d'entrée principal du projet.
+Exécute les différentes expériences demandées (simulation unitaire, variation 
+de la charge lambda, variation de N et calculs d'intervalles de confiance).
+"""
+
 import numpy as np
 
 from experiences import (
@@ -13,14 +19,9 @@ from plots import (
     tracer_courbe_IC95
 )
 
-
-# -------------------------------
-# Programme principal
-# -------------------------------
-
 if __name__ == "__main__":
 
-    # paramètres de base
+    # Paramètres de base
     N = 5
     K = 10
     lmbda = 0.3
@@ -28,31 +29,25 @@ if __name__ == "__main__":
     temps_max = 1000
 
     # -------------------------------
-    # 1. Simulation simple
+    # 1. Simulation unitaire
     # -------------------------------
-
     print("===== Simulation simple =====")
 
     sim = simulation_simple(N, K, lmbda, tau, temps_max)
-
     res = sim.resultats_finaux(temps_max)
 
     print("Débit :", res["debit"])
     print("Clients moyens :", res["clients_moyens"])
     print("Taux de pertes :", res["taux_pertes"])
 
-    # tracé des courbes temporelles
     tracer_evolution(sim)
 
-
     # -------------------------------
-    # 2. Variation de lambda
+    # 2. Impact de la charge (lambda)
     # -------------------------------
-
     print("\n===== Variation de lambda =====")
 
     lambdas = np.linspace(0.05, 1.0, 10)
-
     debits_lambda = varier_lambda(lambdas, N, K, tau, temps_max)
 
     tracer_courbe(
@@ -64,15 +59,12 @@ if __name__ == "__main__":
         "debit_lambda"
     )
 
-
     # -------------------------------
-    # 3. Variation de N
+    # 3. Impact de la densité (N)
     # -------------------------------
-
     print("\n===== Variation de N =====")
 
     Ns = list(range(1, 21))
-
     debits_N = varier_N(Ns, K, lmbda, tau, temps_max)
 
     tracer_courbe(
@@ -84,11 +76,9 @@ if __name__ == "__main__":
         "debit_N"
     )
 
-
     # -------------------------------
-    # 4. Intervalle de confiance 95%
+    # 4. Etude statistique (IC à 95%)
     # -------------------------------
-
     print("\n===== Intervalle de confiance (95%) =====")
 
     moyennes = []
@@ -109,7 +99,6 @@ if __name__ == "__main__":
             f"Intervalle de confiance 95%=[{bas:.4f}, {haut:.4f}]"
         )
         
-
     tracer_courbe_IC95(
         Ns,
         moyennes,
