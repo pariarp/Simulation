@@ -9,7 +9,8 @@ from experiences import (
 
 from plots import (
     tracer_evolution,
-    tracer_courbe
+    tracer_courbe,
+    tracer_courbe_IC95
 )
 
 
@@ -59,7 +60,8 @@ if __name__ == "__main__":
         debits_lambda,
         "Lambda",
         "Débit",
-        "Débit en fonction de lambda"
+        "Débit en fonction de lambda", 
+        "debit_lambda"
     )
 
 
@@ -78,7 +80,8 @@ if __name__ == "__main__":
         debits_N,
         "Nombre de stations N",
         "Débit",
-        "Débit en fonction de N"
+        "Débit en fonction de N",
+        "debit_N"
     )
 
 
@@ -88,12 +91,32 @@ if __name__ == "__main__":
 
     print("\n===== Intervalle de confiance (95%) =====")
 
+    moyennes = []
+    bornes_inf = []
+    bornes_sup = []
+
     for N_test in Ns:
         moyenne, bas, haut = estimer_debit_IC95(
             N_test, K, lmbda, tau, temps_max
         )
 
+        moyennes.append(moyenne)
+        bornes_inf.append(bas)
+        bornes_sup.append(haut)
+
         print(
             f"N={N_test} -> débit moyen={moyenne:.4f}, "
             f"Intervalle de confiance 95%=[{bas:.4f}, {haut:.4f}]"
         )
+        
+
+    tracer_courbe_IC95(
+        Ns,
+        moyennes,
+        bornes_inf,
+        bornes_sup,
+        "Nombre de stations N",
+        "Débit moyen",
+        "Débit moyen en fonction de N avec IC95%",
+        "debit_N_IC95"
+    )
