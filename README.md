@@ -126,9 +126,3 @@ Le programme permet de :
 - mesurer le taux de pertes,
 - étudier l’impact de λ et N,
 - calculer des intervalles de confiance à 95%.
-
----
-
-# Auteurs
-
-Projet réalisé dans le cadre du module de simulation MAC — année 2025-2026.
