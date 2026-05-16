@@ -1,6 +1,13 @@
-# README — Projet Simulation MAC
+# Projet de Simulation - Medium Access Control (MAC)
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python)
+![NumPy](https://img.shields.io/badge/NumPy-013243?logo=numpy)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?logo=plotly)
 
-## Description
+**Master 1 Informatique - DataScale | Université Paris-Saclay (2025-2026)**
+
+**Auteurs :** Paria RAHMATPANAH [22503767] & Emmy MARIE-JOSEPH [22102295]
+
+---
 
 Ce projet implémente un simulateur à événements discrets d’un protocole MAC utilisant un mécanisme d’Exponential Backoff.
 
@@ -17,10 +24,9 @@ Le projet répond aux demandes du sujet de simulation MAC.
 
 ---
 
-# Structure du projet
+## Structure du projet
 
 ```text
-.
 ├── main.py
 ├── mac_simulator.py
 ├── experiences.py
@@ -31,9 +37,9 @@ Le projet répond aux demandes du sujet de simulation MAC.
 
 ---
 
-# Description des fichiers
+## Description des fichiers
 
-## `mac_simulator.py`
+### `mac_simulator.py`
 
 Contient :
 - la classe `Station`,
@@ -48,7 +54,7 @@ Le simulateur utilise un échéancier basé sur `heapq`.
 
 ---
 
-## `experiences.py`
+### `experiences.py`
 
 Contient les expériences :
 - simulation simple,
@@ -58,7 +64,7 @@ Contient les expériences :
 
 ---
 
-## `plots.py`
+### `plots.py`
 
 Contient les fonctions permettant de tracer les courbes avec Matplotlib :
 - évolution temporelle du débit,
@@ -68,7 +74,7 @@ Contient les fonctions permettant de tracer les courbes avec Matplotlib :
 
 ---
 
-## `main.py`
+### `main.py`
 
 Programme principal :
 - lance les simulations,
@@ -78,7 +84,7 @@ Programme principal :
 
 ---
 
-# Installation
+## Installation
 
 Installer les bibliothèques nécessaires :
 
@@ -88,7 +94,7 @@ pip install numpy matplotlib
 
 ---
 
-# Exécution
+## Exécution
 
 Lancer le programme avec :
 
@@ -98,7 +104,7 @@ python main.py
 
 ---
 
-# Paramètres principaux
+## Paramètres principaux
 
 Dans `main.py` :
 
@@ -118,7 +124,7 @@ temps_max = 1000
 
 ---
 
-# Résultats produits
+## Résultats produits
 
 Le programme permet de :
 - tracer le débit \(n(t)/t\),
