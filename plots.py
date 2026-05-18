@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import os
 
 def appliquer_style():
     """Applique un style graphique unifié pour toutes les figures générées."""
@@ -25,6 +26,7 @@ def tracer_evolution(sim):
     plt.title("Évolution du débit au cours du temps")
     plt.grid(True)
     plt.tight_layout()
+    os.makedirs('images/', exist_ok=True)
     plt.savefig("images/debit_temps.png", dpi=300)
     plt.show()
 
@@ -36,6 +38,7 @@ def tracer_evolution(sim):
     plt.title("Évolution du nombre moyen de clients")
     plt.grid(True)
     plt.tight_layout()
+    os.makedirs('images/', exist_ok=True)
     plt.savefig("images/clients_moyens_temps.png", dpi=300)
     plt.show()
 
@@ -47,6 +50,7 @@ def tracer_evolution(sim):
     plt.title("Évolution du taux de pertes")
     plt.grid(True)
     plt.tight_layout()
+    os.makedirs('images/', exist_ok=True)
     plt.savefig("images/taux_pertes_temps.png", dpi=300)
     plt.show()
 
