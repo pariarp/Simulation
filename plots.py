@@ -80,7 +80,28 @@ def tracer_courbe_IC95(x, moyennes, bornes_inf, bornes_sup, xlabel, ylabel, titr
     )
 
     # Zone optimale identifiée empiriquement
-    plt.axvspan(7, 9, alpha=0.15, label="Zone optimale estimée")
+    #plt.axvspan(7, 9, alpha=0.15, label="Zone optimale estimée")
+
+    # Zone optimale calculée automatiquement avec les IC95%
+    max_moyenne = max(moyennes)
+    indice_max = moyennes.index(max_moyenne)
+
+    bas_max = bornes_inf[indice_max]
+    haut_max = bornes_sup[indice_max]
+
+    Ns_optimaux = [
+        n for n, bas, haut in zip(x, bornes_inf, bornes_sup)
+        if haut >= bas_max and bas <= haut_max
+    ]
+
+    plt.axvspan(
+        min(Ns_optimaux),
+        max(Ns_optimaux),
+        alpha=0.15,
+        label="Zone optimale estimée"
+    )
+
+
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
